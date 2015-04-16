@@ -1,0 +1,8 @@
+
+[ ] Implement a C++ backend
+[ ] Implement processing in a separate thread
+[ ] Make sure we can't press the reset button until a board has been
+    completely torn down and re-set up. We have memory leaks if the
+    board is reset in the middle of destroying the old board.
+[ ] Implement a faster way of finding an open cell.
+    For this, we'll probably just keep a lookup table of opencells
