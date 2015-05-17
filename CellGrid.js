@@ -53,7 +53,7 @@ function reset_board(size, type_percentages) {
 
     num_cell_type[0] = (d.numCells) * type_percentages[0];
     var num_non_blank = (d.numCells) - num_cell_type[0];
-    for (var i = 0; i < num_cell_type.length - 1; i++)  {
+    for (var i = 0; i < num_cell_type.length; i++)  {
         num_cell_type[i] = num_non_blank * type_percentages[i];
     }
 
