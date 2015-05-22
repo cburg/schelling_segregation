@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>schelling_segregation.qml</file>
+        <file>Cell.qml</file>
+        <file>CellGrid.qml</file>
+        <file>CellGrid.js</file>
+        <file>SettingSlider.qml</file>
+        <file>Panel.qml</file>
+    </qresource>
+</RCC>
