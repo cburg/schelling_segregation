@@ -1,14 +1,21 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
+#include <QQuickView>
+#include <QQmlContext>
 
+#include "cellgrid.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/schelling_segregation.qml")));
+    QQuickView view;
 
+    CellGrid cppgrid;
+
+    view.engine()->rootContext()->setContextProperty("cppgrid", &cppgrid);
+    view.setSource(QUrl("qrc:/schelling_segregation.qml"));
+    view.show();
     return app.exec();
 
 }

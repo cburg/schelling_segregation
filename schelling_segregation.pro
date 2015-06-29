@@ -1,8 +1,9 @@
 TEMPLATE = app
 
-QT += qml quick widgets
+QT += qml quick widgets declarative
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    cellgrid.cpp
 
 RESOURCES += qml.qrc
 
@@ -12,4 +13,5 @@ QML_IMPORT_PATH =
 # Default rules for deployment.
 include(deployment.pri)
 
-HEADERS += 
+HEADERS += \ 
+    cellgrid.h

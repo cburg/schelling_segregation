@@ -5,7 +5,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 
 
-ApplicationWindow {
+Rectangle {
     id: rootWindow
     width: 850
     height: 400
