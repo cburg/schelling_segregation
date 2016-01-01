@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
 
     view.engine()->rootContext()->setContextProperty("cppgrid", &cppgrid);
     view.setSource(QUrl("qrc:/schelling_segregation.qml"));
+    view.setResizeMode(QQuickView::SizeRootObjectToView);
     view.show();
     return app.exec();
 
