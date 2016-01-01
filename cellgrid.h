@@ -58,7 +58,7 @@ private:
 class CellGrid : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QList<Cell*> cells READ cells NOTIFY cellsChanged)
+    Q_PROPERTY(QList<QObject*> cells READ cells NOTIFY cellsChanged)
 
 
 signals:
@@ -79,7 +79,7 @@ public:
     Q_INVOKABLE void moveUnhappy();
     // End API
 
-    QList<Cell*> &cells() {
+    QList<QObject*> &cells() {
         return _cells;
     }
 
@@ -87,7 +87,7 @@ public:
 
 private:
 
-    QList<Cell*> _cells;
+    QList<QObject*> _cells;
     int _size;
     int _length;
     int _width;

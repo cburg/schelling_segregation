@@ -6,5 +6,6 @@
         <file>CellGrid.js</file>
         <file>SettingSlider.qml</file>
         <file>Panel.qml</file>
+        <file>CppCellGridModel.qml</file>
     </qresource>
 </RCC>

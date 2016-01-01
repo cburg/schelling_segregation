@@ -55,7 +55,7 @@ void CellGrid::resetBoard(int size, QList<double> type_percentages) {
 
     // Make sure the percentages only add up to 100% (just a sanity check)
     double sum_percent = 0.0;
-    for (int i = 0; i < type_percentages.length(); i++) {
+    for (int i = 1; i < type_percentages.length(); i++) {
         sum_percent += type_percentages[i];
     }
 
@@ -72,16 +72,18 @@ void CellGrid::resetBoard(int size, QList<double> type_percentages) {
     _numCells = size * size;
 
 
-
     // Make sure we clear the board first
     clearBoard();
 
 
     // Calculate the counts for each type of cell
     QList<int> num_cell_type;
-    num_cell_type.append(0 * type_percentages[0]);
+    // Add in count of the number of blank cells
+    num_cell_type.append(_numCells * type_percentages[0]);
+
+    // Add in the counts for the rest of the cell types.
     int num_non_blank = _numCells - num_cell_type[0];
-    for (int i = 0; i < _numTypes; i++) {
+    for (int i = 1; i < _numTypes; i++) {
         num_cell_type.append(num_non_blank * type_percentages[i]);
     }
 
@@ -104,8 +106,8 @@ void CellGrid::resetBoard(int size, QList<double> type_percentages) {
     for (int type = 1; type < _numTypes; type++) {
         for (int i = 0; i < num_cell_type[type]; i++) {
             int index = std::rand() % _numCells;
-            if (_cells[index]->type() == 0) {
-                _cells[index]->setType(type);
+            if (((Cell*)_cells[index])->type() == 0) {
+                ((Cell*)_cells[index])->setType(type);
             } else {
                 i--;
             }
@@ -116,6 +118,7 @@ void CellGrid::resetBoard(int size, QList<double> type_percentages) {
     fflush(stdout);
 
     emit boardReady();
+    emit cellsChanged();
 }
 
 
@@ -129,6 +132,11 @@ void CellGrid::setUpdateParameters(int neighborhood_distance, double percent_nei
     } else if (percent_neighbors_same < 0.0) {
         percent_neighbors_same = 0.0;
     }
+
+    neighborhoodDistance = neighborhood_distance;
+    percentNeighborsSame = percent_neighbors_same;
+    numTypes = _numTypes;
+
 }
 
 
@@ -140,17 +148,19 @@ int CellGrid::fullStep() {
 
 
 int CellGrid::markUnhappy() {
+
     int num_unhappy = 0;
 
     for (int i = 0; i < _cells.size(); i++) {
-        Cell *cur_cell = _cells[i];
-        int num_neighbor_type[numTypes];
-        for (int type = 0; type < numTypes; type++) {
+
+        Cell *cur_cell = (Cell*)_cells[i];
+        int num_neighbor_type[_numTypes];
+        for (int type = 0; type < _numTypes; type++) {
             num_neighbor_type[type] = 0;
         }
 
-        int cur_row = cur_cell->row();
-        int cur_col = cur_cell->col();
+        int cur_row = i / _size;//cur_cell->row();
+        int cur_col = i % _size;//cur_cell->col();
 
         // Count the neighbors' types
         for (int row = -neighborhoodDistance; row <= neighborhoodDistance; row++) {
@@ -167,7 +177,7 @@ int CellGrid::markUnhappy() {
                     if (neighbor_col != cur_col || neighbor_row != cur_row) {
 
                         int idx = neighbor_row * _size + neighbor_col;
-                        Cell *neighbor = _cells[idx];
+                        Cell *neighbor = (Cell*)_cells[idx];
                         if (neighbor) {
                             num_neighbor_type[neighbor->type()]++;
                         }
@@ -182,12 +192,19 @@ int CellGrid::markUnhappy() {
             num_neighbors += num_neighbor_type[type];
         }
 
-        double percent_same = num_neighbor_type[cur_cell->type()] / num_neighbors;
+
+        double percent_same = 1.0;
+        if (num_neighbors != 0) {
+            percent_same = (double)num_neighbor_type[cur_cell->type()] / (double)num_neighbors;
+        }
+
         if (cur_cell->type() > 0 && percent_same < percentNeighborsSame) {
             cur_cell->setUnhappy(true);
             num_unhappy++;
         }
     }
+
+    emit cellsChanged();
 
     return num_unhappy;
 }
@@ -197,10 +214,10 @@ void CellGrid::moveUnhappy() {
 
     std::srand(time(NULL));
     for (int i = 0; i < _cells.size(); i++) {
-        Cell *cur_cell = _cells[i];
+        Cell *cur_cell = (Cell*)_cells[i];
         if (cur_cell->unhappy()) {
             int rand_idx = std::rand() % _cells.size();
-            Cell *rand_cell = _cells[rand_idx];
+            Cell *rand_cell = (Cell*)_cells[rand_idx];
 
             if (rand_cell->type() != 0) {
                 i--;
@@ -212,6 +229,9 @@ void CellGrid::moveUnhappy() {
             }
         }
     }
+
+    emit cellsChanged();
+
 }
 
 // End API
