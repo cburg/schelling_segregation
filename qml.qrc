@@ -7,5 +7,8 @@
         <file>SettingSlider.qml</file>
         <file>Panel.qml</file>
         <file>CppCellGridModel.qml</file>
+        <file>CppCellGridCanvas.qml</file>
+        <file>CppCellGrid.qml</file>
+        <file>CppCellGrid.js</file>
     </qresource>
 </RCC>

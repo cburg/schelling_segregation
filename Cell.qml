@@ -11,6 +11,7 @@ Rectangle {
     property int type: 0 // initialize to blank
     property int row: 0
     property int col: 0
+    property int idx: 0
 
     x: col * width;
     y: row * height;
