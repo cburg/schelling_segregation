@@ -4,6 +4,7 @@ import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.0
+import CellGrid 1.0
 
 Rectangle {
     id: mainWindow
@@ -26,7 +27,6 @@ Rectangle {
                 height: gridPanel.interiorHeight
                 anchors.centerIn: gridPanel
             }
-            */
 
 
             CppCellGridModel {
@@ -35,6 +35,18 @@ Rectangle {
                 height: gridPanel.interiorHeight
                 anchors.centerIn: gridPanel
             }
+            */
+
+            CellGrid {
+                id: board
+                width: gridPanel.interiorWidth
+                height: gridPanel.interiorHeight
+                anchors.centerIn: parent
+
+                property int size: 10
+                property int numCells: size * size
+            }
+
         }
 
         ColumnLayout {
@@ -134,23 +146,7 @@ Rectangle {
                         Layout.alignment: Qt.AlignCenter
                         text: "Reset"
                         onClicked: {
-                            stepTimer.stop();
-
-                            var board_width = gridSize.settingValue;
-
-                            var blank_percent = blankSpaces.settingValue / 100.0;
-                            var red_percent = redPopSize.settingValue / 100.0;
-                            var blue_percent = 1.0 - red_percent;
-
-                            var percentages = [blank_percent, red_percent, blue_percent];
-
-                            board.resetBoard(board_width, percentages);
-                            board.setUpdateParameters(1, sameNeighbors.settingValue / 100.0);
-
-                            boardStatistics.numCells = board.numCells
-                            boardStatistics.numUnhappyCells = -1 // init to -1 since we don't know yet
-                            boardStatistics.numSteps = 0
-
+                            mainWindow.resetBoard();
                         }
                     }
 
@@ -249,6 +245,26 @@ Rectangle {
 
     }
 
+    function resetBoard() {
+
+        stepTimer.stop();
+
+        var board_width = gridSize.settingValue;
+
+        var blank_percent = blankSpaces.settingValue / 100.0;
+        var red_percent = redPopSize.settingValue / 100.0;
+        var blue_percent = 1.0 - red_percent;
+
+        var percentages = [blank_percent, red_percent, blue_percent];
+
+        board.resetBoard(board_width, percentages);
+        board.setUpdateParameters(1, sameNeighbors.settingValue / 100.0);
+
+        boardStatistics.numCells = board.numCells
+        boardStatistics.numUnhappyCells = -1 // init to -1 since we don't know yet
+        boardStatistics.numSteps = 0
+    }
+
 
     function incrementHalfStep() {
         if (boardStatistics.prevStepMark == false) {
@@ -272,6 +288,10 @@ Rectangle {
         interval: delaySlider.settingValue
         repeat: true
         onTriggered: mainWindow.incrementHalfStep()
+    }
+
+    Component.onCompleted: {
+        mainWindow.resetBoard();
     }
 }
 
