@@ -42,9 +42,6 @@ Rectangle {
                 width: gridPanel.interiorWidth
                 height: gridPanel.interiorHeight
                 anchors.centerIn: parent
-
-                property int size: 10
-                property int numCells: size * size
             }
 
         }
@@ -260,7 +257,7 @@ Rectangle {
         board.resetBoard(board_width, percentages);
         board.setUpdateParameters(1, sameNeighbors.settingValue / 100.0);
 
-        boardStatistics.numCells = board.numCells
+        boardStatistics.numCells = board.numCells()
         boardStatistics.numUnhappyCells = -1 // init to -1 since we don't know yet
         boardStatistics.numSteps = 0
     }

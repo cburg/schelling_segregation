@@ -27,6 +27,11 @@ public:
     Q_INVOKABLE int fullStep();
     Q_INVOKABLE int markUnhappy();
     Q_INVOKABLE void moveUnhappy();
+
+    Q_INVOKABLE int numCells() {
+        return _numCells;
+    }
+
     // End API
 
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
