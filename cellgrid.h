@@ -40,6 +40,7 @@ public:
 private:
 
     QList<QObject*> _cells;
+    QList<int> _freeCells;
     int _size;
     int _length;
     int _width;

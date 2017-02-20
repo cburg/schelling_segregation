@@ -8,6 +8,7 @@
 
 CellGrid::CellGrid() :
     _cells(),
+    _freeCells(),
     _size(0),
     _length(0),
     _width(0),
@@ -38,6 +39,8 @@ void CellGrid::clearBoard() {
     while(_cells.length() > 0) {
         delete(_cells.takeLast());
     }
+
+    _freeCells.clear();
 }
 
 
@@ -116,6 +119,13 @@ void CellGrid::resetBoard(int size, QList<double> type_percentages) {
         }
     }
 
+    // Fill up our free list
+    for(int i = 0; i < _cells.size(); i++) {
+        if (((Cell*)_cells[i])->type() == 0) {
+            _freeCells.append(i);
+        }
+    }
+
 
     setFlag(ItemHasContents, true);
     emit boardReady();
@@ -149,6 +159,8 @@ int CellGrid::fullStep() {
 
 
 int CellGrid::markUnhappy() {
+
+    // TODO: Parallelize this section
 
     int num_unhappy = 0;
     for (int i = 0; i < _cells.size(); i++) {
@@ -215,19 +227,23 @@ void CellGrid::moveUnhappy() {
 
     std::srand(time(NULL));
     for (int i = 0; i < _cells.size(); i++) {
+
         Cell *cur_cell = (Cell*)_cells[i];
+
         if (cur_cell->unhappy()) {
-            int rand_idx = std::rand() % _cells.size();
+            // Get a random empty cell
+            int rand_free_idx = std::rand() % _freeCells.size();
+            int rand_idx = _freeCells[rand_free_idx];
             Cell *rand_cell = (Cell*)_cells[rand_idx];
 
-            if (rand_cell->type() != 0) {
-                i--;
-            } else {
-                rand_cell->setType(cur_cell->type());
-                rand_cell->setUnhappy(false);
-                cur_cell->setType(0);
-                cur_cell->setUnhappy(false);
-            }
+            // Swap unhappy cell with empty cell
+            rand_cell->setType(cur_cell->type());
+            rand_cell->setUnhappy(false);
+            cur_cell->setType(0);
+            cur_cell->setUnhappy(false);
+
+            // Add the cell that was previously unhappy to the empty list
+            _freeCells[rand_free_idx] = i;
         }
     }
 
