@@ -1,7 +1,7 @@
 import QtQuick 2.4
 import QtQuick.Controls 1.3
 import QtQuick.Window 2.2
-import QtQuick.Dialogs 1.2
+//import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.0
 import CellGrid 1.0
@@ -72,7 +72,7 @@ Rectangle {
 
                         Layout.preferredWidth: settingsColumn.width
                         settingMinValue: 10.0
-                        settingMaxValue: 150.0
+                        settingMaxValue: 300.0
                         settingStepSize: 1.0
                         settingLabel: "Grid Size (W x H):"
                         settingValue: 30.0
@@ -116,7 +116,7 @@ Rectangle {
                         id: delaySlider
 
                         Layout.preferredWidth: settingsColumn.width
-                        settingMinValue: 0.0
+                        settingMinValue: 1.0
                         settingMaxValue: 500.0
                         settingStepSize: 1.0
                         settingLabel: "Step delay (ms):"
