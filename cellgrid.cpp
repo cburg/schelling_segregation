@@ -1,25 +1,26 @@
 #include "cellgrid.h"
-
-#include <cstdlib>
-#include <time.h>
-#include <cstdio>
+#include <QSGSimpleRectNode>
+#include <QSGGeometryNode>
 
 
 
-Cell::Cell(int type, bool unhappy) {
-    _type = type;
-    _unhappy = unhappy;
-}
 
 
-Cell::~Cell() {
+CellGrid::CellGrid() :
+    _cells(),
+    _freeCells(),
+    _size(0),
+    _length(0),
+    _width(0),
+    _numCells(0),
+    _numTypes(0),
+    _numUnhappy(0),
+    _neighborhoodDistance(1),
+    _percentNeighborsSame(0.0)
 
-}
 
-
-CellGrid::CellGrid()
 {
-
+    setFlag(ItemHasContents, false);
 }
 
 CellGrid::~CellGrid()
@@ -38,7 +39,11 @@ void CellGrid::clearBoard() {
     while(_cells.length() > 0) {
         delete(_cells.takeLast());
     }
+
+    _freeCells.clear();
 }
+
+
 
 
 void CellGrid::resetBoard(int size, QList<double> type_percentages) {
@@ -114,11 +119,18 @@ void CellGrid::resetBoard(int size, QList<double> type_percentages) {
         }
     }
 
-    printf("Board is ready!!!\n");
-    fflush(stdout);
+    // Fill up our free list
+    for(int i = 0; i < _cells.size(); i++) {
+        if (((Cell*)_cells[i])->type() == 0) {
+            _freeCells.append(i);
+        }
+    }
 
+
+    setFlag(ItemHasContents, true);
     emit boardReady();
     emit cellsChanged();
+    update();
 }
 
 
@@ -133,9 +145,8 @@ void CellGrid::setUpdateParameters(int neighborhood_distance, double percent_nei
         percent_neighbors_same = 0.0;
     }
 
-    neighborhoodDistance = neighborhood_distance;
-    percentNeighborsSame = percent_neighbors_same;
-    numTypes = _numTypes;
+    _neighborhoodDistance = neighborhood_distance;
+    _percentNeighborsSame = percent_neighbors_same;
 
 }
 
@@ -149,8 +160,9 @@ int CellGrid::fullStep() {
 
 int CellGrid::markUnhappy() {
 
-    int num_unhappy = 0;
+    // TODO: Parallelize this section
 
+    int num_unhappy = 0;
     for (int i = 0; i < _cells.size(); i++) {
 
         Cell *cur_cell = (Cell*)_cells[i];
@@ -163,8 +175,8 @@ int CellGrid::markUnhappy() {
         int cur_col = i % _size;//cur_cell->col();
 
         // Count the neighbors' types
-        for (int row = -neighborhoodDistance; row <= neighborhoodDistance; row++) {
-            for (int col = -neighborhoodDistance; col <= neighborhoodDistance; col++) {
+        for (int row = -_neighborhoodDistance; row <= _neighborhoodDistance; row++) {
+            for (int col = -_neighborhoodDistance; col <= _neighborhoodDistance; col++) {
                 int neighbor_row = cur_row + row;
                 int neighbor_col = cur_col + col;
 
@@ -188,7 +200,7 @@ int CellGrid::markUnhappy() {
 
         // Calculate the percentage of neighbors
         int num_neighbors = 0;
-        for (int type = 1; type < numTypes; type++) {
+        for (int type = 1; type < _numTypes; type++) {
             num_neighbors += num_neighbor_type[type];
         }
 
@@ -198,13 +210,14 @@ int CellGrid::markUnhappy() {
             percent_same = (double)num_neighbor_type[cur_cell->type()] / (double)num_neighbors;
         }
 
-        if (cur_cell->type() > 0 && percent_same < percentNeighborsSame) {
+        if (cur_cell->type() > 0 && percent_same < _percentNeighborsSame) {
             cur_cell->setUnhappy(true);
             num_unhappy++;
         }
     }
 
     emit cellsChanged();
+    update();
 
     return num_unhappy;
 }
@@ -214,43 +227,87 @@ void CellGrid::moveUnhappy() {
 
     std::srand(time(NULL));
     for (int i = 0; i < _cells.size(); i++) {
+
         Cell *cur_cell = (Cell*)_cells[i];
+
         if (cur_cell->unhappy()) {
-            int rand_idx = std::rand() % _cells.size();
+            // Get a random empty cell
+            int rand_free_idx = std::rand() % _freeCells.size();
+            int rand_idx = _freeCells[rand_free_idx];
             Cell *rand_cell = (Cell*)_cells[rand_idx];
 
-            if (rand_cell->type() != 0) {
-                i--;
-            } else {
-                rand_cell->setType(cur_cell->type());
-                rand_cell->setUnhappy(false);
-                cur_cell->setType(0);
-                cur_cell->setUnhappy(false);
-            }
+            // Swap unhappy cell with empty cell
+            rand_cell->setType(cur_cell->type());
+            rand_cell->setUnhappy(false);
+            cur_cell->setType(0);
+            cur_cell->setUnhappy(false);
+
+            // Add the cell that was previously unhappy to the empty list
+            _freeCells[rand_free_idx] = i;
         }
     }
 
     emit cellsChanged();
+    update();
 
 }
+
 
 // End API
 
 
 
 
+QSGNode * CellGrid::updatePaintNode(QSGNode * oldNode, UpdatePaintNodeData *)
+{
+    QSGNode *node = 0;
 
-// Private
-int index(int row, int col) {
-    if (row < 0) {
-        row = 0;
+    if (!oldNode) {
+        node = new QSGNode();
+    } else {
+        node = static_cast<QSGNode *>(oldNode);
     }
 
-    if (col < 0) {
-        col = 0;
+    // Clean up all child nodes
+    node->removeAllChildNodes();
+
+
+    // Clean up all child nodes
+    node->removeAllChildNodes();
+
+    qreal cell_width = (qreal)width() / _size;
+    qreal cell_height = (qreal)height() / _size;
+
+    // Add the nodes for our grid
+    for (int i = 0; i < _size; i++) {
+        for (int j = 0; j < _size; j++) {
+            int cur_cell_idx = i * _size + j;
+            Cell *cur_cell = (Cell *)_cells[cur_cell_idx];
+
+
+            if (cur_cell->unhappy()) {
+                QSGSimpleRectNode *n2 = new QSGSimpleRectNode();
+                n2->setColor(QColor("black"));
+                n2->setRect(j * cell_width + (cell_width / 4.0), i * cell_width + (cell_height / 4.0), cell_width / 2.0, cell_height / 2.0);
+                node->prependChildNode(n2);
+            }
+
+            QSGSimpleRectNode *n = new QSGSimpleRectNode();
+            if (cur_cell->type() == 0) {
+                n->setColor(QColor("darkgrey"));
+            } else if (cur_cell->type() == 1){
+                n->setColor(QColor("red"));
+            } else if (cur_cell->type() == 2){
+                n->setColor(QColor("blue"));
+            }
+            n->setRect(j * cell_width, i * cell_height, cell_width, cell_height);
+            node->prependChildNode(n);
+        }
     }
+    node->markDirty(QSGNode::DirtyGeometry);
 
+    return node;
 
-
-    return -1;
 }
+
+

@@ -2,60 +2,10 @@
 #define CELLGRID_H
 
 #include <QObject>
+#include <QQuickItem>
+#include "cell.h"
 
-class Cell : public QObject
-{
-    Q_OBJECT
-    Q_PROPERTY(int type READ type NOTIFY typeChanged)
-    Q_PROPERTY(bool unhappy READ unhappy NOTIFY unhappyChanged)
-
-public:
-    Cell(int type, bool unhappy);
-    ~Cell();
-
-    int type() {
-        return _type;
-    }
-
-    bool unhappy() {
-        return _unhappy;
-    }
-
-    void setType(int type) {
-        _type = type;
-        emit typeChanged();
-    }
-
-    void setUnhappy(bool unhappy) {
-        _unhappy = unhappy;
-        emit unhappyChanged();
-    }
-
-    int row() {
-        return _row;
-    }
-
-    int col() {
-        return _col;
-    }
-
-signals:
-    void typeChanged();
-    void unhappyChanged();
-
-private:
-    int _type;
-    bool _unhappy;
-    int _row;
-    int _col;
-
-};
-
-
-
-
-
-class CellGrid : public QObject
+class CellGrid : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(QList<QObject*> cells READ cells NOTIFY cellsChanged)
@@ -77,7 +27,14 @@ public:
     Q_INVOKABLE int fullStep();
     Q_INVOKABLE int markUnhappy();
     Q_INVOKABLE void moveUnhappy();
+
+    Q_INVOKABLE int numCells() {
+        return _numCells;
+    }
+
     // End API
+
+    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *);
 
     QList<QObject*> &cells() {
         return _cells;
@@ -88,17 +45,18 @@ public:
 private:
 
     QList<QObject*> _cells;
+    QList<int> _freeCells;
     int _size;
     int _length;
     int _width;
     int _numCells;
     int _numTypes;
+    int _numUnhappy;
+    int _neighborhoodDistance;
+    double _percentNeighborsSame;
 
     int index(int row, int col);
 
-    int neighborhoodDistance;
-    double percentNeighborsSame;
-    int numTypes;
 
 };
 
