@@ -268,42 +268,38 @@ QSGNode * CellGrid::updatePaintNode(QSGNode * oldNode, UpdatePaintNodeData *)
         node = static_cast<QSGNode *>(oldNode);
     }
 
-    // Clean up all child nodes
-    node->removeAllChildNodes();
-
-
-    // Clean up all child nodes
-    node->removeAllChildNodes();
-
     qreal cell_width = (qreal)width() / _size;
     qreal cell_height = (qreal)height() / _size;
 
-    // Add the nodes for our grid
+    int cell_count = _size * _size;
+
+    delete(node);
+    node = new QSGNode();
+
+    // Update the nodes in the grid
     for (int i = 0; i < _size; i++) {
         for (int j = 0; j < _size; j++) {
             int cur_cell_idx = i * _size + j;
             Cell *cur_cell = (Cell *)_cells[cur_cell_idx];
 
+            QSGSimpleRectNode *cn = new QSGSimpleRectNode();
+            cn->setFlag(QSGNode::OwnedByParent, true);
 
-            if (cur_cell->unhappy()) {
-                QSGSimpleRectNode *n2 = new QSGSimpleRectNode();
-                n2->setColor(QColor("black"));
-                n2->setRect(j * cell_width + (cell_width / 4.0), i * cell_width + (cell_height / 4.0), cell_width / 2.0, cell_height / 2.0);
-                node->prependChildNode(n2);
-            }
+            //bn->setRect(j * cell_width + (cell_width / 4.0), i * cell_width + (cell_height / 4.0), cell_width / 2.0, cell_height / 2.0);
+            cn->setRect(j * cell_width, i * cell_height, cell_width, cell_height);
 
-            QSGSimpleRectNode *n = new QSGSimpleRectNode();
             if (cur_cell->type() == 0) {
-                n->setColor(QColor("darkgrey"));
+                cn->setColor(QColor("darkgrey"));
             } else if (cur_cell->type() == 1){
-                n->setColor(QColor("red"));
+                cn->setColor(QColor("red"));
             } else if (cur_cell->type() == 2){
-                n->setColor(QColor("blue"));
+                cn->setColor(QColor("blue"));
             }
-            n->setRect(j * cell_width, i * cell_height, cell_width, cell_height);
-            node->prependChildNode(n);
+
+            node->prependChildNode(cn);
         }
     }
+
     node->markDirty(QSGNode::DirtyGeometry);
 
     return node;
