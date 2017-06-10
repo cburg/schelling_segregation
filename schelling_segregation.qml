@@ -20,30 +20,45 @@ Rectangle {
             Layout.preferredWidth: parent.height
             Layout.preferredHeight: parent.height
 
-            /* // Uncomment to use
+            // Efficient grid initialization
+            // Slow grid updates
             CellGrid {
                 id: board
                 width: gridPanel.interiorWidth
                 height: gridPanel.interiorHeight
                 anchors.centerIn: gridPanel
-            }
+            }/**/
 
 
+            /*// Sometimes efficient grid initialization
+            // Efficient grid update
             CppCellGridModel {
                 id: board
                 width: gridPanel.interiorWidth
                 height: gridPanel.interiorHeight
                 anchors.centerIn: gridPanel
             }
-            */
+            /**/
 
-            CellGrid {
+            /*// Sometimes efficient grid initialization
+            // Efficient grid update
+            CppCellGridCanvas {
                 id: board
                 width: gridPanel.interiorWidth
                 height: gridPanel.interiorHeight
-                anchors.centerIn: parent
+                anchors.centerIn: gridPanel
             }
+            /**/
 
+            /*// *Very* slow grid creation
+            // *Very* slow grid updates
+            CppCellGrid {
+                id: board
+                width: gridPanel.interiorWidth
+                height: gridPanel.interiorHeight
+                anchors.centerIn: gridPanel
+            }
+            /**/
         }
 
         ColumnLayout {
