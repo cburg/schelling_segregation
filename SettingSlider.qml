@@ -14,8 +14,8 @@ Row {
 
     Label {
         id: settingLabel
-        width: 140
         text: ""
+        clip: true
     }
 
     Slider {
