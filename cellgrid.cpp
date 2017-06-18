@@ -225,7 +225,6 @@ int CellGrid::markUnhappy() {
 
 void CellGrid::moveUnhappy() {
 
-    std::srand(time(NULL));
     for (int i = 0; i < _cells.size(); i++) {
 
         Cell *cur_cell = (Cell*)_cells[i];
