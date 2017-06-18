@@ -62,7 +62,7 @@ function reset_board(size, type_percentages) {
     cellList = new Array(d.numCells);
     for (var i = 0; i < d.numCells; i++) {
         // Create a new cell
-        var newCell = d.cellComponent.incubateObject(cellGrid, {width: cellGrid.width / d.size, height: cellGrid.height / d.size});
+        var newCell = d.cellComponent.createObject(cellGrid, {width: cellGrid.width / d.size, height: cellGrid.height / d.size});
         //newCell.width = Qt.binding(d.cellWidth);
         //newCell.height = Qt.binding(d.cellWidth);
         var row = Math.floor(i / d.size);

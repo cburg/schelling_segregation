@@ -8,7 +8,7 @@ Rectangle {
 
     color: "darkgrey"
 
-    readonly property int numCells: d.numCells
+    //readonly property int numCells: d.numCells
 
     QtObject {
         id: d
@@ -59,6 +59,10 @@ Rectangle {
 
     function moveUnhappy() {
         return CellGrid.move_unhappy();
+    }
+
+    function numCells() {
+        return d.numCells
     }
 }
 
