@@ -46,6 +46,7 @@ private:
 
     QList<QObject*> _cells;
     QList<int> _freeCells;
+    QList<int> _unhappyCells;
     int _size;
     int _length;
     int _width;

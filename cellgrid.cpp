@@ -5,10 +5,10 @@
 
 
 
-
 CellGrid::CellGrid() :
     _cells(),
     _freeCells(),
+    _unhappyCells(),
     _size(0),
     _length(0),
     _width(0),
@@ -41,6 +41,7 @@ void CellGrid::clearBoard() {
     }
 
     _freeCells.clear();
+    _unhappyCells.clear();
 }
 
 
@@ -212,10 +213,10 @@ int CellGrid::markUnhappy() {
 
         if (cur_cell->type() > 0 && percent_same < _percentNeighborsSame) {
             cur_cell->setUnhappy(true);
+            _unhappyCells.append(i);
             num_unhappy++;
         }
     }
-
     emit cellsChanged();
     update();
 
@@ -225,30 +226,25 @@ int CellGrid::markUnhappy() {
 
 void CellGrid::moveUnhappy() {
 
-    for (int i = 0; i < _cells.size(); i++) {
+    while (_unhappyCells.size() > 0) {
+        int rand_unhappy_idx = std::rand() % _unhappyCells.size();
+        int rand_free_idx = std::rand() % _freeCells.size();
 
-        Cell *cur_cell = (Cell*)_cells[i];
+        Cell *unhappy_cell = (Cell*)_cells[_unhappyCells[rand_unhappy_idx]];
+        Cell *free_cell = (Cell*)_cells[_freeCells[rand_free_idx]];
 
-        if (cur_cell->unhappy()) {
-            // Get a random empty cell
-            int rand_free_idx = std::rand() % _freeCells.size();
-            int rand_idx = _freeCells[rand_free_idx];
-            Cell *rand_cell = (Cell*)_cells[rand_idx];
+        free_cell->setType(unhappy_cell->type());
+        free_cell->setUnhappy(false);
+        unhappy_cell->setType(0);
+        unhappy_cell->setUnhappy(false);
 
-            // Swap unhappy cell with empty cell
-            rand_cell->setType(cur_cell->type());
-            rand_cell->setUnhappy(false);
-            cur_cell->setType(0);
-            cur_cell->setUnhappy(false);
+        _freeCells[rand_free_idx] = _unhappyCells[rand_unhappy_idx];
 
-            // Add the cell that was previously unhappy to the empty list
-            _freeCells[rand_free_idx] = i;
-        }
+        _unhappyCells.removeAt(rand_unhappy_idx);
     }
 
     emit cellsChanged();
     update();
-
 }
 
 
