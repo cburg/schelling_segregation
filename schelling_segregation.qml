@@ -4,7 +4,7 @@ import QtQuick.Window 2.2
 //import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.0
-import CellGrid 1.0
+import CellGridSG 1.0
 
 Rectangle {
     id: mainWindow
@@ -21,7 +21,16 @@ Rectangle {
             Layout.preferredHeight: parent.height
 
 
-            // Efficient grid initialization
+            // Fast initialization
+            // Fast grid updates
+            CellGridSG {
+                id: board
+                width: gridPanel.interiorWidth
+                height: gridPanel.interiorHeight
+                anchors.centerIn: gridPanel
+            }/**/
+
+            /*// Efficient grid initialization
             // Slow grid updates
             CellGrid {
                 id: board

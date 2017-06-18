@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     CellGrid cppgrid;
 
-    qmlRegisterType<CellGrid>("CellGrid", 1, 0, "CellGrid");
+    qmlRegisterType<CellGrid>("CellGridSG", 1, 0, "CellGridSG");
 
     view.engine()->rootContext()->setContextProperty("cppgrid", &cppgrid);
     view.setSource(QUrl("qrc:/schelling_segregation.qml"));
