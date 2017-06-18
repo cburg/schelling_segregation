@@ -8,8 +8,8 @@ import CellGrid 1.0
 
 Rectangle {
     id: mainWindow
-    width: 850
-    height: 400
+    width: 1000
+    height: 450
     color: "darkgrey"
 
     RowLayout {
@@ -19,6 +19,7 @@ Rectangle {
             id: gridPanel
             Layout.preferredWidth: parent.height
             Layout.preferredHeight: parent.height
+
 
             // Efficient grid initialization
             // Slow grid updates
